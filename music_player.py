@@ -24,33 +24,19 @@ os.chdir(r'D:\Users\UsuarioDirectD\Music\Songs')
 
 
 class Playlist():
-    def __init__(self, nome):
-        self.nome = nome
-        
-    def titulo_playlist(self):
-        self.newWindow = Toplevel(root)
-        self.newWindow.geometry = ("150x70")
-        l1 = Label(self.newWindow, text = "Digite o título da playlist")
-        l1.pack(padx = 0, pady = 0)
-        
-        self.enter_text = Entry(self.newWindow)                             
-        self.enter_text.pack(padx = 0, pady = 0)
-        
-        
-        b1 = Button(self.newWindow, text = "OK", command = nplist.text_playlist)
-        b1.pack(padx = 10, pady = 20)
+    def __init__(self, title_playlist):
+        self.title_playlist = title_playlist
         
     
-    def text_playlist(self):
-        self.text_written = self.enter_text.get()
-        l2 = Label(root, text = self.text_written, font = ("Arial", 15), bg = "gray", fg = "black")
+    def text_display_playlist(self):
+        l2 = Label(root, text = self.title_playlist, font = ("Arial", 15), bg = "gray", fg = "black")
         l2.place(x = 1, y = 0, height = 20, width = 60)
-        self.newWindow.destroy()
-        nplist.adicionar_faixa()
+        
+        
         
     def adicionar_faixa(self):
         self.songs = filedialog.askopenfilenames(initialdir = r'D:\Users\UsuarioDirectD\Music\Songs',
-                                      title = "Escolha músicas")
+                                      title = "Escolher músicas")
         for song in self.songs:
             song_box.insert(END, song[36:])
     
@@ -64,8 +50,8 @@ class Playlist():
         
     def salvar_playlist(self):
         file_name = filedialog.asksaveasfilename(
-            initialdir = r'D:\Users\UsuarioDirectD\Music\Songs',
-            title = "Save Playlist file",
+            initialdir = r'D:\Users\UsuarioDirectD\Music\Playlists',
+            title = "Salvar playlist",
             filetypes = (("mp3 file", "*.mp3"), ("All files", "*.*")))
         
         if file_name:
@@ -79,6 +65,10 @@ class Playlist():
         output_file = open(file_name, "wb")
         
         pickle.dump(all_tracks, output_file)
+        
+        title_playlist = file_name[40:-4]
+        
+        Playlist(title_playlist).text_display_playlist()
             
 
     
@@ -88,9 +78,9 @@ class NovaPlaylist(Playlist):
         self.nome = nome
         
     def adicionar_faixas(self):
-        nplist.deletar_playlist()
+        plist.limpar_playlist()
         self.songs = filedialog.askopenfilenames(initialdir = r'D:\Users\UsuarioDirectD\Music\Songs',
-                                      title = "Escolha músicas")
+                                      title = "Escolher músicas")
         for song in self.songs:
             song_box.insert(END, song[36:])
     
@@ -101,9 +91,9 @@ class AbrirPlaylist(Playlist):
         self.nome = nome
         
     def selecionar_playlist(self):
-        file_name = filedialog.asksaveasfilename(
-            initialdir = r'D:\Users\UsuarioDirectD\Music\Songs',
-            title = "Save Playlist file",
+        file_name = filedialog.askopenfilename(
+            initialdir = r'D:\Users\UsuarioDirectD\Music\Playlists',
+            title = "Abrir playlist",
             filetypes = (("mp3 file", "*.mp3"), ("All files", "*.*")))
         
         if file_name:
@@ -115,8 +105,25 @@ class AbrirPlaylist(Playlist):
             
             for song in all_tracks:
                 song_box.insert(END, song)
+                
+        title_playlist = file_name[40:-4]
+        Playlist(title_playlist).text_display_playlist()
+        
+        
+class RemoverPlaylist(Playlist):
+    def __init__(self, nome):
+        self.nome = nome
 
-
+    def remover_playlist(self):
+        plist.text_display_playlist()  
+        plist.limpar_playlist()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 class Busca():
         
     def buscar_faixa(self):
@@ -126,11 +133,13 @@ class Busca():
         pass
 
     
-plist = Playlist("ok")
+plist = Playlist("playlist0")
 
 nplist = NovaPlaylist("ok")
 
 aplist = AbrirPlaylist("ok")
+
+rplist = RemoverPlaylist("ok")
 
 bsc = Busca()
 
@@ -144,9 +153,10 @@ root.config(menu = my_menu)
 #Criar Menu de Playlist
 add_playlist_menu = Menu(my_menu)
 my_menu.add_cascade(label = "Playlist", menu = add_playlist_menu)
-add_playlist_menu.add_command(label = "Nova playlist", command = nplist.titulo_playlist)
+add_playlist_menu.add_command(label = "Nova playlist", command = nplist.adicionar_faixas)
 add_playlist_menu.add_command(label = "Abrir playlist", command = aplist.selecionar_playlist)
 add_playlist_menu.add_command(label = "Salvar playlist", command = nplist.salvar_playlist)
+
 
 #Criar Menu de Músicas
 add_playlist_menu = Menu(my_menu)
